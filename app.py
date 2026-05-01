@@ -86,3 +86,34 @@ with col2:
         else:
             st.success("✅ **ACESSO PESADO:** Fora do perímetro de restrição. Rota livre para carretas.")
 
+def calcular_score_logistico(linha):
+    score = 0
+    
+    # Pé Direito
+    pe_direito = linha.get('PE_DIREITO', 0)
+    if pe_direito >= 12: score += 3.0
+    elif pe_direito >= 10: score += 2.0
+    elif pe_direito >= 8: score += 1.0
+    
+    # Piso
+    piso = linha.get('PISO', 0)
+    if piso >= 6: score += 3.0
+    elif piso >= 5: score += 2.0
+    elif piso >= 3: score += 1.0
+    
+    # Custo (Aluguel + Cond + IPTU)
+    custo_total = linha.get('ALUGUEL_M2', 0) + linha.get('COND_M2', 0) + linha.get('IPTU_M2', 0)
+    if custo_total <= 20: score += 2.0
+    elif custo_total <= 25: score += 1.5
+    elif custo_total <= 30: score += 1.0
+    
+    # Localização
+    dist = linha.get('distancia_br', 5)
+    if dist <= 2: score += 2.0
+    elif dist <= 5: score += 1.0
+    
+    return round(score, 1)
+
+# Adicione esta linha onde você exibe os dados no Streamlit:
+st.warning("⚠️ **Nota Legal:** Este sistema está em fase experimental. Os scores e dados são **estimativas baseadas em parâmetros técnicos** e não substituem uma perícia presencial.")
+
