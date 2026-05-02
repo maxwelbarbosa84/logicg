@@ -6,15 +6,19 @@ from geopy.distance import geodesic
 
 st.set_page_config(page_title="LogiCG Intelligence Pro", layout="wide")
 
-# Referências Estratégicas
+# Referências Estratégicas (Nós Logísticos)
 REFS = {
     "Centro de Campina Grande": [-7.23072, -35.8817],
     "Porto de Suape": [-8.39889, -34.96222],
     "Aeroporto João Suassuna": [-7.2692, -35.8950],
-    "BR-230": [-7.276566, -35.888468],
-    "BR-104": [-7.2308, -35.8817]
+    "BR-104": [-7.2308, -35.8817],
+    # Radar Multiponto: Principais acessos da BR-230 em CG
+    "ACESSOS_BR230": [
+        [-7.2625, -35.9158], # Acesso 1: Alça Sudoeste (Cruzamento com BR-104)
+        [-7.2513, -35.8752], # Acesso 2: Viaduto da Av. Brasília (Amigão)
+        [-7.2341, -35.8619]  # Acesso 3: Saída Leste (Sentido João Pessoa / Partage)
+    ]
 }
-
 # --- FUNÇÃO DE LIMPEZA DE DADOS ---
 def extrair_numero(valor):
     """Garante que valores com R$ ou vírgulas sejam lidos corretamente pela IA."""
@@ -102,7 +106,9 @@ with col2:
         st.subheader(f"📊 Resultado da Auditoria: {condo_foco}")
         
         dist_centro = round(geodesic(ponto_galpao, REFS["Centro de Campina Grande"]).km, 1)
-        dist_br = round(geodesic(ponto_galpao, REFS["BR-230"]).km, 1)
+# A IA calcula a distância para todos os acessos e escolhe o mais próximo (min)
+distancias_br = [geodesic(ponto_galpao, acesso).km for acesso in REFS["ACESSOS_BR230"]]
+dist_br = round(min(distancias_br), 1)
         
         # Chamada do Score
         valor_score = calcular_score_logistico(dados_foco, dist_br)
