@@ -15,16 +15,28 @@ REFS = {
     "BR-104": [-7.2308, -35.8817]
 }
 
+# --- FUNÇÃO DE LIMPEZA DE DADOS ---
+def extrair_numero(valor):
+    """Garante que valores com R$ ou vírgulas sejam lidos corretamente pela IA."""
+    if pd.isna(valor) or valor == '': return 0.0
+    if isinstance(valor, str):
+        valor = valor.upper().replace('R$', '').replace('.', '').replace(',', '.').strip()
+    try:
+        return float(valor)
+    except:
+        return 0.0
+
 # --- CÉREBRO DA IA: SCORE LOGÍSTICO ---
 def calcular_score_logistico(linha, dist_br):
-    """Calcula um score de 0 a 10 baseado nas especificações técnicas."""
+    """Calcula um score de 0 a 10 baseado nas especificações técnicas reais do TSV."""
     score = 0
     
-    pe_direito = float(linha.get('PE_DIREITO', 0) or 0)
-    piso = float(linha.get('PISO', 0) or 0)
-    aluguel = float(linha.get('ALUGUEL_M2', 0) or 0)
-    cond = float(linha.get('COND_M2', 0) or 0)
-    iptu = float(linha.get('IPTU_M2', 0) or 0)
+    # Lendo os nomes EXATOS das colunas do seu arquivo
+    pe_direito = extrair_numero(linha.get('PÉ DIREITO', 0))
+    piso = extrair_numero(linha.get('PISO TON/M²', 0))
+    aluguel = extrair_numero(linha.get('ALUGUEL/M²', 0))
+    cond = extrair_numero(linha.get('CONDOMÍNIO / m²', 0))
+    iptu = extrair_numero(linha.get('IPTU MENSAL / m²', 0))
     
     # 1. Avaliação do Pé Direito (Ideal >= 12m)
     if pe_direito >= 12: score += 3.0
